@@ -5,73 +5,73 @@
    A serene, modern interface for spiritual listening
    ============================================ */
 
-/* Design tokens - Temple library palette */
+/* Design tokens - modern calm palette */
 :root {
-  --sage-50: #f6f6f1;
-  --sage-100: #e3e6d8;
-  --sage-200: #c9cfb4;
-  --sage-300: #a8b18d;
-  --sage-400: #859164;
-  --sage-500: #657548;
-  --sage-600: #4d5c36;
-  --sage-700: #3d492d;
-  --sage-800: #323b27;
-  --sage-900: #2b3324;
+  --sage-50: #effaf8;
+  --sage-100: #d8f3ee;
+  --sage-200: #b3e7de;
+  --sage-300: #80d4c6;
+  --sage-400: #4bb8a6;
+  --sage-500: #269785;
+  --sage-600: #1e786a;
+  --sage-700: #1d6156;
+  --sage-800: #1d4f47;
+  --sage-900: #1b423c;
 
-  --sand-50: #fffaf0;
-  --sand-100: #f8ecd5;
-  --sand-200: #efd7ad;
-  --sand-300: #e4bd80;
-  --sand-400: #d49d54;
-  --sand-500: #be7d32;
-  --sand-600: #9d6427;
-  --sand-700: #7f4f22;
-  --sand-800: #68411f;
-  --sand-900: #57371d;
+  --sand-50: #fff7ed;
+  --sand-100: #ffedd5;
+  --sand-200: #fed7aa;
+  --sand-300: #fdba74;
+  --sand-400: #fb923c;
+  --sand-500: #f97316;
+  --sand-600: #ea580c;
+  --sand-700: #c2410c;
+  --sand-800: #9a3412;
+  --sand-900: #7c2d12;
 
-  --lotus-50: #fff4ef;
-  --lotus-100: #fde1d4;
-  --lotus-200: #f9c1a6;
-  --lotus-300: #f19a72;
-  --lotus-400: #e67348;
-  --lotus-500: #d95629;
-  --lotus-600: #b94420;
-  --lotus-700: #97371d;
-  --lotus-800: #7a301d;
-  --lotus-900: #642a1b;
+  --lotus-50: #fef2f2;
+  --lotus-100: #fee2e2;
+  --lotus-200: #fecaca;
+  --lotus-300: #fca5a5;
+  --lotus-400: #f87171;
+  --lotus-500: #ef4444;
+  --lotus-600: #dc2626;
+  --lotus-700: #b91c1c;
+  --lotus-800: #991b1b;
+  --lotus-900: #7f1d1d;
 
-  --sky-50: #f2f6f4;
-  --sky-100: #dce7e3;
-  --sky-200: #bbd0ca;
-  --sky-300: #93b2aa;
-  --sky-400: #67918a;
-  --sky-500: #4d7571;
-  --sky-600: #3d5d5a;
-  --sky-700: #334b49;
-  --sky-800: #2c3e3c;
-  --sky-900: #273534;
+  --sky-50: #eff6ff;
+  --sky-100: #dbeafe;
+  --sky-200: #bfdbfe;
+  --sky-300: #93c5fd;
+  --sky-400: #60a5fa;
+  --sky-500: #3b82f6;
+  --sky-600: #2563eb;
+  --sky-700: #1d4ed8;
+  --sky-800: #1e40af;
+  --sky-900: #1e3a8a;
 
-  --neutral-50: #f9f5ee;
-  --neutral-100: #efe8dc;
-  --neutral-200: #ddd1bf;
-  --neutral-300: #c6b69f;
-  --neutral-400: #ab9981;
-  --neutral-500: #907d67;
-  --neutral-600: #746350;
-  --neutral-700: #5f5142;
-  --neutral-800: #4d4238;
-  --neutral-900: #3f372f;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1f2937;
+  --neutral-900: #0f172a;
 
   /* Semantic colors */
-  --background: #f8f2e7;
-  --background-secondary: #fffaf1;
-  --foreground: #2d261d;
-  --foreground-muted: #6d6256;
+  --background: #f6f8fb;
+  --background-secondary: #ffffff;
+  --foreground: #0f172a;
+  --foreground-muted: #64748b;
 
-  --card-bg: rgba(255, 251, 244, 0.82);
-  --card-border: rgba(130, 112, 86, 0.16);
-  --card-shadow: 0 10px 30px rgba(58, 42, 19, 0.08);
-  --card-shadow-hover: 0 18px 44px rgba(58, 42, 19, 0.14);
+  --card-bg: rgba(255, 255, 255, 0.82);
+  --card-border: rgba(148, 163, 184, 0.18);
+  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --card-shadow-hover: 0 18px 44px rgba(15, 23, 42, 0.1);
 
   --primary: var(--sage-600);
   --primary-light: var(--sage-100);
@@ -84,10 +84,10 @@
   --warning: #fbbf24;
   --error: #f87171;
 
-  /* Typography */
-  --font-heading: 'Georgia', 'Times New Roman', serif;
-  --font-body: 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-heading: "Avenir Next", "Inter", "Segoe UI", sans-serif;
+  --font-body: "Avenir Next", "Inter", "Segoe UI", sans-serif;
 
+  /* Typography */
   /* Spacing */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -104,15 +104,15 @@
 /* Dark mode - Deep, calming tones */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #17130f;
-    --background-secondary: #211a14;
-    --foreground: #f2e7d6;
-    --foreground-muted: #b7a894;
+    --background: #020617;
+    --background-secondary: #0b1220;
+    --foreground: #e2e8f0;
+    --foreground-muted: #94a3b8;
 
-    --card-bg: rgba(34, 26, 20, 0.85);
-    --card-border: rgba(216, 190, 146, 0.14);
-    --card-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
-    --card-shadow-hover: 0 20px 44px rgba(0, 0, 0, 0.45);
+    --card-bg: rgba(15, 23, 42, 0.76);
+    --card-border: rgba(148, 163, 184, 0.14);
+    --card-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+    --card-shadow-hover: 0 20px 44px rgba(0, 0, 0, 0.4);
 
     --primary: var(--sage-400);
     --primary-light: var(--sage-800);
@@ -168,8 +168,8 @@ html {
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(228, 189, 128, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(103, 145, 138, 0.16), transparent 26%),
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(38, 151, 133, 0.14), transparent 26%),
     linear-gradient(180deg, var(--background-secondary), var(--background));
   color: var(--foreground);
   font-family: var(--font-body);
@@ -186,8 +186,8 @@ body::before {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 10% 15%, rgba(190, 125, 50, 0.15), transparent 18%),
-    radial-gradient(circle at 88% 20%, rgba(77, 117, 113, 0.12), transparent 22%),
+    radial-gradient(circle at 10% 15%, rgba(59, 130, 246, 0.12), transparent 18%),
+    radial-gradient(circle at 88% 20%, rgba(239, 68, 68, 0.08), transparent 22%),
     linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
   background-size: auto, auto, 32px 32px, 32px 32px;
@@ -199,8 +199,8 @@ body::before {
 @media (prefers-color-scheme: dark) {
   body::before {
     background:
-      radial-gradient(circle at 10% 15%, rgba(217, 86, 41, 0.16), transparent 20%),
-      radial-gradient(circle at 88% 20%, rgba(103, 145, 138, 0.16), transparent 22%),
+      radial-gradient(circle at 10% 15%, rgba(59, 130, 246, 0.14), transparent 20%),
+      radial-gradient(circle at 88% 20%, rgba(38, 151, 133, 0.12), transparent 22%),
       linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: auto, auto, 32px 32px, 32px 32px;
@@ -230,7 +230,7 @@ body::before {
 
 /* Buttons */
 .btn-primary {
-  background: linear-gradient(135deg, var(--lotus-500), var(--sand-500));
+  background: linear-gradient(135deg, var(--sky-600), var(--sage-500));
   color: white;
   padding: 0.625rem 1.25rem;
   border-radius: var(--radius-md);
@@ -241,9 +241,9 @@ body::before {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--lotus-600), var(--sand-600));
+  background: linear-gradient(135deg, var(--sky-700), var(--sage-600));
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(190, 125, 50, 0.28);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
 }
 
 .btn-secondary {
@@ -277,9 +277,9 @@ body::before {
 }
 
 .btn-icon:hover {
-  background: var(--sand-100);
-  color: var(--lotus-700);
-  border-color: var(--sand-300);
+  background: var(--sky-100);
+  color: var(--sky-700);
+  border-color: var(--sky-300);
 }
 
 .btn-icon.active {
@@ -476,8 +476,8 @@ input[type="checkbox"]:hover {
 }
 
 .chapter-item.active {
-  background: linear-gradient(135deg, rgba(217, 86, 41, 0.12), rgba(190, 125, 50, 0.16));
-  border-color: rgba(190, 125, 50, 0.28);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(38, 151, 133, 0.12));
+  border-color: rgba(59, 130, 246, 0.2);
   color: var(--foreground);
 }
 
@@ -594,7 +594,7 @@ input[type="checkbox"]:hover {
 
 /* Typography utilities */
 .text-gradient {
-  background: linear-gradient(135deg, var(--lotus-600), var(--sand-500), var(--sky-500));
+  background: linear-gradient(135deg, var(--sky-700), var(--sage-500), var(--lotus-500));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -602,7 +602,7 @@ input[type="checkbox"]:hover {
 
 .heading-1 {
   font-size: 2.25rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-heading), sans-serif;
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -610,14 +610,14 @@ input[type="checkbox"]:hover {
 
 .heading-2 {
   font-size: 1.5rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-heading), sans-serif;
   font-weight: 600;
   line-height: 1.3;
 }
 
 .heading-3 {
   font-size: 1.125rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-heading), sans-serif;
   font-weight: 600;
   line-height: 1.4;
 }

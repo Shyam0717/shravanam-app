@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { BookOpen, Filter, Library, Mic2, Search } from 'lucide-react';
+import { Filter, Library, Mic2, Search } from 'lucide-react';
 import { CollectionKey, FilterType, LibraryLecture, SpeakerKey } from '@/types/Lecture';
 import { LectureCard } from '@/components/LectureCard';
 import { useUserStorage } from '@/lib/useUserStorage';
@@ -186,33 +186,6 @@ export default function LectureListPage() {
                 >
                   <span>{speaker.shortName}</span>
                   <span className="badge text-xs">{getSpeakerCollections(speaker.slug).length}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="glass-card p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-sky-700 dark:text-sky-300" />
-              <h2 className="font-semibold text-foreground">Sections</h2>
-            </div>
-            <div className="space-y-2 max-h-[420px] overflow-y-auto custom-scrollbar pr-1">
-              <button
-                onClick={() => setSelectedSection(null)}
-                className={`chapter-item ${selectedSection === null ? 'active' : ''}`}
-              >
-                <span>All Sections</span>
-                <span className="badge text-xs">{collectionLectures.length}</span>
-              </button>
-
-              {sections.map((section) => (
-                <button
-                  key={section.key}
-                  onClick={() => setSelectedSection(section.key)}
-                  className={`chapter-item ${selectedSection === section.key ? 'active' : ''}`}
-                >
-                  <span>{section.label}</span>
-                  <span className="badge text-xs">{section.lectures.length}</span>
                 </button>
               ))}
             </div>

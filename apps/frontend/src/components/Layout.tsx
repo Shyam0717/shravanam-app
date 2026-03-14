@@ -31,12 +31,12 @@ export function Layout({ children }: LayoutProps) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-4">
                         <Link href="/" className="flex items-center gap-3 group shrink-0">
-                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-lotus-500 via-sand-500 to-sky-500 flex items-center justify-center text-white shadow-lg transition-all group-hover:scale-105">
+                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-600 via-sage-500 to-lotus-500 flex items-center justify-center text-white shadow-lg transition-all group-hover:scale-105">
                                 <BookOpen className="w-5 h-5" />
                             </div>
                             <div>
                                 <h1 className="font-semibold text-foreground tracking-[0.08em] uppercase text-sm">Shravanam</h1>
-                                <p className="text-xs text-foreground-muted">Spiritual audio library</p>
+                                <p className="hidden sm:block text-xs text-foreground-muted">Spiritual audio library</p>
                             </div>
                         </Link>
 
@@ -50,8 +50,8 @@ export function Layout({ children }: LayoutProps) {
                                         key={item.href}
                                         href={item.href}
                                         aria-current={active ? 'page' : undefined}
-                                        className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors sm:justify-start ${active
-                                            ? 'bg-sand-100 text-foreground dark:bg-sand-900/30'
+                                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors sm:justify-start sm:px-4 sm:text-sm ${active
+                                            ? 'bg-sky-100 text-foreground dark:bg-sky-900/30'
                                             : 'text-foreground-muted hover:bg-white/60 hover:text-foreground dark:hover:bg-neutral-800/60'
                                         }`}
                                     >
