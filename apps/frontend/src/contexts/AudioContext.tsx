@@ -12,6 +12,8 @@ interface AudioState {
     volume: number;
     isMuted: boolean;
     playbackRate: number;
+    sleepTimerMinutes: number | null;
+    sleepTimerEndsAt: number | null;
 }
 
 interface AudioContextType extends AudioState {
@@ -24,9 +26,11 @@ interface AudioContextType extends AudioState {
     toggleMute: () => void;
     skip: (seconds: number) => void;
     setPlaybackRate: (rate: number) => void;
+    setSleepTimer: (minutes: number | null) => void;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
+const AUDIO_PREFERENCES_KEY = 'shravanam_audio_preferences';
 
 export function useAudio() {
     const context = useContext(AudioContext);
@@ -52,6 +56,8 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
         volume: 1,
         isMuted: false,
         playbackRate: 1,
+        sleepTimerMinutes: null,
+        sleepTimerEndsAt: null,
     });
 
     // Initialize audio element
@@ -60,6 +66,32 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
         // Avoid fetching audio metadata until the user explicitly plays a lecture.
         audio.preload = 'none';
         audioRef.current = audio;
+
+        if (typeof window !== 'undefined') {
+            try {
+                const savedPreferences = window.localStorage.getItem(AUDIO_PREFERENCES_KEY);
+                if (savedPreferences) {
+                    const parsed = JSON.parse(savedPreferences) as Partial<Pick<AudioState, 'volume' | 'playbackRate' | 'isMuted'>>;
+                    if (typeof parsed.volume === 'number') {
+                        audio.volume = parsed.volume;
+                    }
+                    if (typeof parsed.isMuted === 'boolean') {
+                        audio.muted = parsed.isMuted;
+                    }
+                    if (typeof parsed.playbackRate === 'number') {
+                        audio.playbackRate = parsed.playbackRate;
+                    }
+                    setState(prev => ({
+                        ...prev,
+                        volume: typeof parsed.volume === 'number' ? parsed.volume : prev.volume,
+                        isMuted: typeof parsed.isMuted === 'boolean' ? parsed.isMuted : prev.isMuted,
+                        playbackRate: typeof parsed.playbackRate === 'number' ? parsed.playbackRate : prev.playbackRate,
+                    }));
+                }
+            } catch {
+                // Ignore invalid local preferences and continue with defaults.
+            }
+        }
 
         const handleTimeUpdate = () => {
             setState(prev => ({ ...prev, currentTime: audio.currentTime }));
@@ -138,7 +170,7 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
                 if (prev.currentLecture && onLectureComplete) {
                     onLectureComplete(prev.currentLecture);
                 }
-                return { ...prev, isPlaying: false, currentTime: 0 };
+                return { ...prev, isPlaying: false, currentTime: 0, sleepTimerMinutes: null, sleepTimerEndsAt: null };
             });
         };
 
@@ -173,6 +205,49 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
             audio.src = '';
         };
     }, [onLectureComplete]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        window.localStorage.setItem(
+            AUDIO_PREFERENCES_KEY,
+            JSON.stringify({
+                volume: state.volume,
+                isMuted: state.isMuted,
+                playbackRate: state.playbackRate,
+            })
+        );
+    }, [state.isMuted, state.playbackRate, state.volume]);
+
+    useEffect(() => {
+        if (!state.sleepTimerEndsAt) return;
+        const sleepTimerEndsAt = state.sleepTimerEndsAt;
+
+        const interval = window.setInterval(() => {
+            const remainingMs = sleepTimerEndsAt - Date.now();
+
+            if (remainingMs <= 0) {
+                audioRef.current?.pause();
+                setState(prev => ({
+                    ...prev,
+                    isPlaying: false,
+                    sleepTimerMinutes: null,
+                    sleepTimerEndsAt: null,
+                }));
+                window.clearInterval(interval);
+                return;
+            }
+
+            const remainingMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
+            setState(prev => (
+                prev.sleepTimerMinutes === remainingMinutes
+                    ? prev
+                    : { ...prev, sleepTimerMinutes: remainingMinutes }
+            ));
+        }, 1000);
+
+        return () => window.clearInterval(interval);
+    }, [state.sleepTimerEndsAt]);
 
     const play = useCallback((lecture: AnyLecture) => {
         const audio = audioRef.current;
@@ -233,6 +308,7 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
         const audio = audioRef.current;
         if (audio) {
             audio.volume = volume;
+            audio.muted = volume === 0;
             setState(prev => ({ ...prev, volume, isMuted: volume === 0 }));
         }
     }, []);
@@ -263,6 +339,14 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
         }
     }, []);
 
+    const setSleepTimer = useCallback((minutes: number | null) => {
+        setState(prev => ({
+            ...prev,
+            sleepTimerMinutes: minutes,
+            sleepTimerEndsAt: minutes ? Date.now() + minutes * 60 * 1000 : null,
+        }));
+    }, []);
+
     const value: AudioContextType = {
         ...state,
         play,
@@ -274,6 +358,7 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
         toggleMute,
         skip,
         setPlaybackRate,
+        setSleepTimer,
     };
 
     return (

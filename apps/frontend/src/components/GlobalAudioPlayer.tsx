@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, X, ChevronUp, ChevronDown, MoonStar, Gauge } from 'lucide-react';
 import { useAudio } from '@/contexts/AudioContext';
 import { collectionDefinitions } from '@/lib/library';
 
@@ -11,6 +11,8 @@ export function GlobalAudioPlayer() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+    const speedOptions = [0.75, 1, 1.25, 1.5, 2];
+    const sleepOptions = [10, 20, 30, 45];
 
     // Don't render if no lecture is loaded
     if (!audio.currentLecture) return null;
@@ -121,7 +123,7 @@ export function GlobalAudioPlayer() {
                         </div>
 
                         {/* Playback Speed */}
-                        <div className="relative hidden sm:block">
+                        <div className="relative hidden md:block">
                             <button
                                 onClick={() => setShowSpeedMenu(!showSpeedMenu)}
                                 className="btn-icon text-xs font-medium w-9"
@@ -149,7 +151,7 @@ export function GlobalAudioPlayer() {
                         </div>
 
                         {/* Volume */}
-                        <div className="hidden sm:flex items-center gap-2">
+                        <div className="hidden md:flex items-center gap-2">
                             <button
                                 onClick={() => audio.toggleMute()}
                                 className="text-foreground-muted hover:text-foreground transition-colors"
@@ -213,6 +215,99 @@ export function GlobalAudioPlayer() {
                                             View in library →
                                         </Link>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                                <div className="rounded-2xl border border-neutral-200/80 bg-white/75 p-4 dark:border-neutral-700 dark:bg-neutral-800/70">
+                                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+                                        <Gauge className="h-4 w-4 text-sky-600" />
+                                        Playback controls
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="mb-2 flex items-center justify-between text-xs text-foreground-muted">
+                                                <span>Speed</span>
+                                                <span>{audio.playbackRate}x</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {speedOptions.map((rate) => (
+                                                    <button
+                                                        key={rate}
+                                                        onClick={() => audio.setPlaybackRate(rate)}
+                                                        className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                                                            audio.playbackRate === rate
+                                                                ? 'bg-sky-600 text-white'
+                                                                : 'border border-neutral-200 bg-white text-foreground-muted hover:border-sky-200 hover:text-foreground dark:border-neutral-700 dark:bg-neutral-800'
+                                                        }`}
+                                                    >
+                                                        {rate}x
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="mb-2 flex items-center justify-between text-xs text-foreground-muted">
+                                                <span>Volume</span>
+                                                <span>{Math.round((audio.isMuted ? 0 : audio.volume) * 100)}%</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => audio.toggleMute()}
+                                                    className="btn-icon shrink-0"
+                                                    title={audio.isMuted ? 'Unmute' : 'Mute'}
+                                                >
+                                                    {audio.isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                                                </button>
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="1"
+                                                    step="0.05"
+                                                    value={audio.isMuted ? 0 : audio.volume}
+                                                    onChange={(e) => audio.setVolume(parseFloat(e.target.value))}
+                                                    className="w-full"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-neutral-200/80 bg-white/75 p-4 dark:border-neutral-700 dark:bg-neutral-800/70">
+                                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+                                        <MoonStar className="h-4 w-4 text-sand-600" />
+                                        Sleep timer
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        {sleepOptions.map((minutes) => (
+                                            <button
+                                                key={minutes}
+                                                onClick={() => audio.setSleepTimer(minutes)}
+                                                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                                                    audio.sleepTimerMinutes === minutes
+                                                        ? 'bg-sand-500 text-white'
+                                                        : 'border border-neutral-200 bg-white text-foreground-muted hover:border-sand-200 hover:text-foreground dark:border-neutral-700 dark:bg-neutral-800'
+                                                }`}
+                                            >
+                                                {minutes} min
+                                            </button>
+                                        ))}
+                                        <button
+                                            onClick={() => audio.setSleepTimer(null)}
+                                            className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-foreground-muted transition-colors hover:border-neutral-300 hover:text-foreground dark:border-neutral-700 dark:bg-neutral-800"
+                                        >
+                                            Off
+                                        </button>
+                                    </div>
+
+                                    <p className="mt-3 text-xs text-foreground-muted">
+                                        {audio.sleepTimerMinutes
+                                            ? `Playback will pause in about ${audio.sleepTimerMinutes} minute${audio.sleepTimerMinutes === 1 ? '' : 's'}.`
+                                            : 'Set a timer if you want playback to stop automatically.'}
+                                    </p>
                                 </div>
                             </div>
                         </div>
