@@ -25,6 +25,15 @@ export function GlobalAudioPlayer() {
     };
 
     const progress = audio.duration > 0 ? (audio.currentTime / audio.duration) * 100 : 0;
+    const sleepTimerCountdown = audio.sleepTimerEndsAt
+        ? Math.max(0, Math.ceil((audio.sleepTimerEndsAt - Date.now()) / 1000))
+        : null;
+
+    const formatCountdown = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!audio.duration) return;
@@ -103,7 +112,7 @@ export function GlobalAudioPlayer() {
                         </div>
 
                         {/* Time */}
-                        <div className="hidden sm:block text-xs text-foreground-muted font-medium tabular-nums min-w-[100px]">
+                        <div className="text-[11px] text-foreground-muted font-medium tabular-nums min-w-[72px] sm:text-xs sm:min-w-[100px]">
                             {formatTime(audio.currentTime)} / {formatTime(audio.duration)}
                         </div>
 
@@ -304,7 +313,9 @@ export function GlobalAudioPlayer() {
                                     </div>
 
                                     <p className="mt-3 text-xs text-foreground-muted">
-                                        {audio.sleepTimerMinutes
+                                        {sleepTimerCountdown !== null
+                                            ? `Playback will pause in ${formatCountdown(sleepTimerCountdown)}.`
+                                            : audio.sleepTimerMinutes
                                             ? `Playback will pause in about ${audio.sleepTimerMinutes} minute${audio.sleepTimerMinutes === 1 ? '' : 's'}.`
                                             : 'Set a timer if you want playback to stop automatically.'}
                                     </p>
