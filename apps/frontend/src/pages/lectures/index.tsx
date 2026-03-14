@@ -201,8 +201,8 @@ export default function LectureListPage() {
                     key={collection.key}
                     onClick={() => setSelectedCollection(collection.key)}
                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${selectedCollection === collection.key
-                      ? 'bg-sand-100 text-foreground dark:bg-sand-900/30'
-                      : 'bg-white/70 text-foreground-muted border border-neutral-200 hover:text-foreground dark:bg-neutral-800 dark:border-neutral-700'
+                      ? 'bg-sage-600 text-white shadow-sm hover:bg-sage-700'
+                      : 'bg-white/80 text-foreground-muted border border-neutral-200 hover:border-sage-200 hover:text-foreground dark:bg-neutral-800 dark:border-neutral-700'
                     }`}
                   >
                     {collection.label}

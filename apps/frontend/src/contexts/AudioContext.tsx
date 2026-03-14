@@ -57,7 +57,8 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
     // Initialize audio element
     useEffect(() => {
         const audio = new Audio();
-        audio.preload = 'metadata';
+        // Avoid fetching audio metadata until the user explicitly plays a lecture.
+        audio.preload = 'none';
         audioRef.current = audio;
 
         const handleTimeUpdate = () => {
@@ -185,7 +186,6 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
 
         // Load new lecture
         audio.src = lecture.audioUrl;
-        audio.load();
         // Restore playback rate
         audio.playbackRate = state.playbackRate;
 

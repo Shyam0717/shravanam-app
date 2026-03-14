@@ -51,8 +51,8 @@ export function Layout({ children }: LayoutProps) {
                                         href={item.href}
                                         aria-current={active ? 'page' : undefined}
                                         className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors sm:justify-start sm:px-4 sm:text-sm ${active
-                                            ? 'bg-sky-100 text-foreground dark:bg-sky-900/30'
-                                            : 'text-foreground-muted hover:bg-white/60 hover:text-foreground dark:hover:bg-neutral-800/60'
+                                            ? 'bg-sky-600 text-white shadow-sm hover:bg-sky-700'
+                                            : 'border border-transparent text-foreground-muted hover:border-sky-200 hover:bg-white/80 hover:text-foreground dark:hover:border-neutral-700 dark:hover:bg-neutral-800/60'
                                         }`}
                                     >
                                         <Icon className="w-4 h-4" />
