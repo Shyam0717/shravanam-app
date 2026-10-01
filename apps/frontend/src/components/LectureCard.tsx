@@ -103,20 +103,39 @@ export function LectureCard({
     return (
         <>
             <div
-                className={`glass-card overflow-hidden group transition-all duration-300 ${listened
-                    ? 'ring-2 ring-sage-200 dark:ring-sage-800'
-                    : ''
-                    } ${isPlaying ? 'ring-2 ring-sage-400 shadow-lg' : ''}`}
+                // Outline rather than ring: .glass-card's own box-shadow would hide a ring.
+                className={`glass-card overflow-hidden group transition-all duration-300 ${isPlaying
+                    ? 'outline-2 outline-sage-400'
+                    : listened
+                        ? 'outline-2 outline-sage-200 dark:outline-sage-800'
+                        : ''
+                    }`}
             >
-                <div className="p-5">
-                    {/* Card Header - Clickable for expand */}
+                <div className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
+                    {/* Play button - drives the global player */}
+                    <button
+                        onClick={handlePlayPause}
+                        aria-label={isPlaying ? `Pause ${lecture.title}` : `Play ${lecture.title}`}
+                        className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center transition-all duration-200 ${isPlaying
+                            ? 'bg-gradient-to-br from-sage-600 to-sage-700 text-white shadow-lg'
+                            : 'bg-gradient-to-br from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 text-white shadow-md hover:shadow-lg hover:scale-105'
+                            }`}
+                    >
+                        {isPlaying ? (
+                            <Pause className="w-5 h-5 fill-current" />
+                        ) : (
+                            <Play className="w-5 h-5 fill-current ml-0.5" />
+                        )}
+                    </button>
+
+                    {/* Details - clickable to expand notes and links */}
                     <div
-                        className="cursor-pointer"
+                        className="min-w-0 flex-1 cursor-pointer"
                         onClick={() => setIsExpanded(!isExpanded)}
                     >
-                        {/* Top row: Chapter badge and actions */}
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-2">
+                        {/* Top row: badges and actions */}
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
                                 <span className="badge">
                                     {getPrimaryBadge()}
                                 </span>
@@ -127,13 +146,15 @@ export function LectureCard({
                                 )}
                             </div>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex shrink-0 items-center gap-1">
                                 {/* Bookmark button */}
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onToggleBookmarked();
                                     }}
+                                    aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'}
+                                    aria-pressed={bookmarked}
                                     className={`btn-icon ${bookmarked ? 'active text-sand-600' : ''}`}
                                 >
                                     <Bookmark className={`w-4 h-4 ${bookmarked ? 'fill-current' : ''}`} />
@@ -145,6 +166,8 @@ export function LectureCard({
                                         e.stopPropagation();
                                         setIsExpanded(!isExpanded);
                                     }}
+                                    aria-label={isExpanded ? 'Hide notes and links' : 'Show notes and links'}
+                                    aria-expanded={isExpanded}
                                     className="btn-icon"
                                 >
                                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -153,90 +176,44 @@ export function LectureCard({
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-sage-700 dark:group-hover:text-sage-300 transition-colors">
+                        <h3 className="mt-1.5 font-semibold leading-snug text-foreground line-clamp-2 group-hover:text-sage-700 dark:group-hover:text-sage-300 transition-colors sm:text-lg">
                             {lecture.title}
                         </h3>
 
-                        {/* Location & Date */}
-                        <div className="flex items-center gap-3 text-sm text-foreground-muted mb-4">
-                            <span>{lecture.speakerName}</span>
-                            {lecture.location && (
-                                <>
-                                    <span>•</span>
-                                    <span className="flex items-center gap-1">
-                                        📍 {lecture.location}
-                                    </span>
-                                </>
-                            )}
-                            {lecture.date && (
-                                <>
-                                    <span>•</span>
-                                    <span>{formatDate(lecture.date)}</span>
-                                </>
-                            )}
-                        </div>
-                    </div>
+                        {/* Location & Date, plus the listened toggle */}
+                        <div className="mt-1 flex items-center justify-between gap-2">
+                            <p className="flex min-w-0 flex-wrap gap-x-2 text-sm text-foreground-muted">
+                                {lecture.location && (
+                                    <span className="whitespace-nowrap">📍 {lecture.location}</span>
+                                )}
+                                {lecture.location && lecture.date && <span aria-hidden="true">·</span>}
+                                {lecture.date && (
+                                    <span className="whitespace-nowrap">{formatDate(lecture.date)}</span>
+                                )}
+                            </p>
 
-                    {/* Simple Play Button - Triggers Global Player */}
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handlePlayPause();
-                            }}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${isPlaying
-                                ? 'bg-gradient-to-br from-sage-600 to-sage-700 text-white shadow-lg'
-                                : 'bg-gradient-to-br from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 text-white shadow-md hover:shadow-lg hover:scale-105'
-                                }`}
-                        >
-                            {isPlaying ? (
-                                <Pause className="w-5 h-5 fill-current" />
-                            ) : (
-                                <Play className="w-5 h-5 fill-current ml-0.5" />
-                            )}
-                        </button>
-
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="text-sm font-medium text-foreground">
-                                    {isPlaying ? 'Playing now' : 'Listen'}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Status Indicators */}
-                        <div className="flex items-center gap-2">
-                            {listened && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onToggleListened();
-                                    }}
-                                    className="text-sage-600 dark:text-sage-400"
-                                    title="Marked as listened"
-                                >
-                                    <CheckCircle2 className="w-5 h-5" />
-                                </button>
-                            )}
-                            {!listened && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onToggleListened();
-                                    }}
-                                    className="text-foreground-muted hover:text-sage-600 dark:hover:text-sage-400"
-                                    title="Mark as listened"
-                                >
-                                    <CheckCircle2 className="w-5 h-5 opacity-50 hover:opacity-100" />
-                                </button>
-                            )}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleListened();
+                                }}
+                                aria-label={listened ? 'Mark as not listened' : 'Mark as listened'}
+                                aria-pressed={listened}
+                                title={listened ? 'Marked as listened' : 'Mark as listened'}
+                                className={`-my-2 -mr-2 flex h-9 w-9 shrink-0 items-center justify-center ${listened
+                                    ? 'text-sage-600 dark:text-sage-400'
+                                    : 'text-foreground-muted hover:text-sage-600 dark:hover:text-sage-400'
+                                    }`}
+                            >
+                                <CheckCircle2 className={`w-5 h-5 ${listened ? '' : 'opacity-50 hover:opacity-100'}`} />
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                    <div className="bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-800 p-5 animate-in slide-in-from-top-2 duration-200">
+                    <div className="bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-800 p-4 sm:p-5 animate-in slide-in-from-top-2 duration-200">
                         <div className="grid gap-4">
                             {/* Summary Section - Placeholder if summary existed */}
                             {lecture.summary && (

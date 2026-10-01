@@ -4,7 +4,9 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Home, Library, BarChart3, Info, BookOpen } from 'lucide-react';
+import { useAudio } from '@/contexts/AudioContext';
 import { GlobalAudioPlayer } from './GlobalAudioPlayer';
+import { InstallPrompt } from './InstallPrompt';
 
 interface LayoutProps {
     children: ReactNode;
@@ -19,6 +21,7 @@ const navItems = [
 
 export function Layout({ children }: LayoutProps) {
     const router = useRouter();
+    const { currentLecture } = useAudio();
 
     const isActive = (href: string) => {
         if (href === '/') return router.pathname === '/';
@@ -26,8 +29,12 @@ export function Layout({ children }: LayoutProps) {
     };
 
     return (
-        <div className="min-h-screen pb-24">
-            <header className="sticky top-0 z-40 border-b border-[color:var(--card-border)] bg-[color:var(--card-bg)]/95 backdrop-blur-xl">
+        // Bottom padding keeps content clear of the fixed tab bar (phones) and the audio player.
+        <div className={`min-h-screen ${currentLecture
+            ? 'pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-28'
+            : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-8'
+        }`}>
+            <header className="md:sticky md:top-0 z-40 border-b border-[color:var(--card-border)] bg-[color:var(--card-bg)]/95 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-4">
                         <Link href="/" className="flex items-center gap-3 group shrink-0">
@@ -40,7 +47,8 @@ export function Layout({ children }: LayoutProps) {
                             </div>
                         </Link>
 
-                        <nav className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center md:justify-end">
+                        {/* Phones use the bottom tab bar below instead */}
+                        <nav className="hidden md:flex md:flex-wrap md:items-center md:justify-end md:gap-2">
                             {navItems.map((item) => {
                                 const Icon = item.icon;
                                 const active = isActive(item.href);
@@ -66,12 +74,13 @@ export function Layout({ children }: LayoutProps) {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8">
+                <InstallPrompt />
                 {children}
             </main>
 
             {/* Footer */}
-            <footer className="mt-16 pb-24 px-4 sm:px-6 lg:px-8">
+            <footer className="mt-12 md:mt-16 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto rounded-[32px] border border-[color:var(--card-border)] bg-[color:var(--card-bg)] px-6 py-8 shadow-[var(--card-shadow)]">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-foreground-muted max-w-xl">
@@ -86,6 +95,36 @@ export function Layout({ children }: LayoutProps) {
 
             {/* Global Audio Player */}
             <GlobalAudioPlayer />
+
+            {/* Bottom tab bar (phones) */}
+            <nav
+                aria-label="Primary"
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--card-border)] bg-[color:var(--card-bg)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+            >
+                <div className="grid grid-cols-4">
+                    {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const active = isActive(item.href);
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                aria-current={active ? 'page' : undefined}
+                                className={`flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-medium ${active
+                                    ? 'text-sky-700 dark:text-sky-300'
+                                    : 'text-foreground-muted'
+                                }`}
+                            >
+                                <span className={`flex h-7 w-14 items-center justify-center rounded-full transition-colors ${active ? 'bg-sky-100 dark:bg-sky-900/60' : ''}`}>
+                                    <Icon className="w-5 h-5" />
+                                </span>
+                                {item.label}
+                            </Link>
+                        );
+                    })}
+                </div>
+            </nav>
         </div>
     );
 }

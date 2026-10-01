@@ -73,6 +73,9 @@
   --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   --card-shadow-hover: 0 18px 44px rgba(15, 23, 42, 0.1);
 
+  /* Unfilled part of sliders */
+  --track: var(--neutral-200);
+
   --primary: var(--sage-600);
   --primary-light: var(--sage-100);
   --primary-dark: var(--sage-700);
@@ -114,6 +117,8 @@
     --card-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
     --card-shadow-hover: 0 20px 44px rgba(0, 0, 0, 0.4);
 
+    --track: var(--neutral-700);
+
     --primary: var(--sage-400);
     --primary-light: var(--sage-800);
     --primary-dark: var(--sage-300);
@@ -144,18 +149,44 @@
   --color-sand-300: var(--sand-300);
   --color-sand-400: var(--sand-400);
   --color-sand-500: var(--sand-500);
+  --color-sand-600: var(--sand-600);
+  --color-sand-700: var(--sand-700);
+  --color-sand-800: var(--sand-800);
+  --color-sand-900: var(--sand-900);
 
   --color-lotus-50: var(--lotus-50);
   --color-lotus-100: var(--lotus-100);
   --color-lotus-200: var(--lotus-200);
+  --color-lotus-300: var(--lotus-300);
   --color-lotus-400: var(--lotus-400);
   --color-lotus-500: var(--lotus-500);
+  --color-lotus-600: var(--lotus-600);
+  --color-lotus-700: var(--lotus-700);
+  --color-lotus-800: var(--lotus-800);
+  --color-lotus-900: var(--lotus-900);
 
   --color-sky-50: var(--sky-50);
   --color-sky-100: var(--sky-100);
   --color-sky-200: var(--sky-200);
+  --color-sky-300: var(--sky-300);
   --color-sky-400: var(--sky-400);
   --color-sky-500: var(--sky-500);
+  --color-sky-600: var(--sky-600);
+  --color-sky-700: var(--sky-700);
+  --color-sky-800: var(--sky-800);
+  --color-sky-900: var(--sky-900);
+
+  /* Slate-toned neutrals from :root, so neutral-* surfaces match the navy dark theme */
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
 
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading);
@@ -164,6 +195,22 @@
 /* Base styles */
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Touch screens: no grey/blue tap flash; a brief dim gives press feedback instead,
+   since hover styles never show on touch. */
+@media (hover: none) {
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a:active,
+  button:not(:disabled):active {
+    opacity: 0.65;
+  }
 }
 
 body {
@@ -223,9 +270,11 @@ body::before {
   transition: all var(--transition-normal);
 }
 
-.glass-card:hover {
-  box-shadow: var(--card-shadow-hover);
-  transform: translateY(-3px);
+@media (hover: hover) {
+  .glass-card:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-3px);
+  }
 }
 
 /* Buttons */
@@ -240,10 +289,12 @@ body::before {
   cursor: pointer;
 }
 
-.btn-primary:hover {
-  background: linear-gradient(135deg, var(--sky-700), var(--sage-600));
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--sky-700), var(--sage-600));
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
+  }
 }
 
 .btn-secondary {
@@ -257,9 +308,11 @@ body::before {
   cursor: pointer;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.72);
-  border-color: var(--sand-300);
+@media (hover: hover) {
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.72);
+    border-color: var(--sand-300);
+  }
 }
 
 .btn-icon {
@@ -276,10 +329,12 @@ body::before {
   cursor: pointer;
 }
 
-.btn-icon:hover {
-  background: var(--sky-100);
-  color: var(--sky-700);
-  border-color: var(--sky-300);
+@media (hover: hover) {
+  .btn-icon:hover {
+    background: var(--sky-100);
+    color: var(--sky-700);
+    border-color: var(--sky-300);
+  }
 }
 
 .btn-icon.active {
@@ -319,9 +374,23 @@ input[type="range"] {
   cursor: pointer;
 }
 
-input[type="range"]::-webkit-slider-track {
+input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
-  background: var(--neutral-200);
+  background: var(--track);
+  border-radius: var(--radius-full);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: var(--track);
+  border-radius: var(--radius-full);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--sage-500);
+  border: none;
   border-radius: var(--radius-full);
 }
 
@@ -394,6 +463,57 @@ input[type="checkbox"]:hover {
   color: var(--foreground-muted);
 }
 
+/* Seek bar in the Now Playing view: taller track, filled up to --progress, bigger thumb for fingers */
+input[type="range"].seek-slider {
+  width: 100%;
+  height: 1.75rem;
+}
+
+input[type="range"].seek-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(90deg, var(--sage-500) var(--progress, 0%), var(--track) var(--progress, 0%));
+}
+
+input[type="range"].seek-slider::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  background: var(--sage-600);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.3);
+}
+
+input[type="range"].seek-slider::-moz-range-track {
+  height: 6px;
+}
+
+input[type="range"].seek-slider::-moz-range-progress {
+  height: 6px;
+  background: var(--sage-500);
+  border-radius: var(--radius-full);
+}
+
+input[type="range"].seek-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--sage-600);
+}
+
+/* iOS zooms the page when focusing a field with text under 16px */
+@media (max-width: 639px) {
+  .input-field {
+    font-size: 1rem;
+  }
+}
+
+/* Horizontally scrolling chip rows */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Tags and badges */
 .badge {
   display: inline-flex;
@@ -409,6 +529,18 @@ input[type="checkbox"]:hover {
 .badge-accent {
   background: rgba(190, 125, 50, 0.14);
   color: var(--sand-700);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge {
+    background: rgba(38, 151, 133, 0.2);
+    color: var(--sage-300);
+  }
+
+  .badge-accent {
+    background: rgba(249, 115, 22, 0.16);
+    color: var(--sand-300);
+  }
 }
 
 .badge-success {
@@ -470,9 +602,11 @@ input[type="checkbox"]:hover {
   justify-content: space-between;
 }
 
-.chapter-item:hover {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: var(--sand-200);
+@media (hover: hover) {
+  .chapter-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: var(--sand-200);
+  }
 }
 
 .chapter-item.active {
@@ -496,7 +630,7 @@ input[type="checkbox"]:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 70;
   padding: 1rem;
   animation: fadeIn var(--transition-normal);
 }
@@ -510,6 +644,26 @@ input[type="checkbox"]:hover {
   overflow: hidden;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
   animation: slideUp var(--transition-normal);
+}
+
+/* Phones: modals become full-screen pages, so the on-screen keyboard can't hide their actions */
+@media (max-width: 639px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-width: none;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+    overflow-y: auto;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* Animations */

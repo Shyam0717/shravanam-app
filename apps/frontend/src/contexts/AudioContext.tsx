@@ -187,14 +187,69 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
             setState(prev => ({ ...prev, playbackRate: audio.playbackRate }));
         };
 
+        // Lock-screen / notification controls (Media Session API) when listening on a phone.
+        const mediaSession = 'mediaSession' in navigator ? navigator.mediaSession : null;
+
+        const syncMediaSession = () => {
+            if (!mediaSession) return;
+            mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+            if (Number.isFinite(audio.duration) && audio.duration > 0) {
+                try {
+                    mediaSession.setPositionState({
+                        duration: audio.duration,
+                        position: Math.min(audio.currentTime, audio.duration),
+                        playbackRate: audio.playbackRate,
+                    });
+                } catch {
+                    // Some browsers reject position state mid-load; the next event will retry.
+                }
+            }
+        };
+
+        const mediaSessionHandlers: Array<[MediaSessionAction, MediaSessionActionHandler]> = [
+            ['play', () => { audio.play().catch(console.error); }],
+            ['pause', () => audio.pause()],
+            ['seekbackward', (details) => {
+                audio.currentTime = Math.max(0, audio.currentTime - (details.seekOffset || 15));
+            }],
+            ['seekforward', (details) => {
+                audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (details.seekOffset || 15));
+            }],
+            ['seekto', (details) => {
+                if (typeof details.seekTime === 'number') audio.currentTime = details.seekTime;
+            }],
+        ];
+
+        if (mediaSession) {
+            for (const [action, handler] of mediaSessionHandlers) {
+                try {
+                    mediaSession.setActionHandler(action, handler);
+                } catch {
+                    // Action not supported on this browser.
+                }
+            }
+        }
+
         audio.addEventListener('timeupdate', handleTimeUpdate);
         audio.addEventListener('durationchange', handleDurationChange);
         audio.addEventListener('ended', handleEnded);
         audio.addEventListener('play', handlePlay);
         audio.addEventListener('pause', handlePause);
         audio.addEventListener('ratechange', handleRateChange);
+        const mediaSessionEvents = ['play', 'pause', 'durationchange', 'ratechange', 'seeked'] as const;
+        mediaSessionEvents.forEach(event => audio.addEventListener(event, syncMediaSession));
 
         return () => {
+            mediaSessionEvents.forEach(event => audio.removeEventListener(event, syncMediaSession));
+            if (mediaSession) {
+                for (const [action] of mediaSessionHandlers) {
+                    try {
+                        mediaSession.setActionHandler(action, null);
+                    } catch {
+                        // Action not supported on this browser.
+                    }
+                }
+            }
             audio.removeEventListener('timeupdate', handleTimeUpdate);
             audio.removeEventListener('durationchange', handleDurationChange);
             audio.removeEventListener('ended', handleEnded);
@@ -218,6 +273,23 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
             })
         );
     }, [state.isMuted, state.playbackRate, state.volume]);
+
+    // Title, speaker and artwork shown on the lock screen / notification.
+    useEffect(() => {
+        if (!('mediaSession' in navigator)) return;
+        const lecture = state.currentLecture;
+        navigator.mediaSession.metadata = lecture
+            ? new MediaMetadata({
+                title: lecture.title,
+                artist: lecture.speakerName,
+                album: lecture.collectionName,
+                artwork: [
+                    { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+                    { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+                ],
+            })
+            : null;
+    }, [state.currentLecture]);
 
     useEffect(() => {
         if (!state.sleepTimerEndsAt) return;
@@ -301,6 +373,8 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
         const audio = audioRef.current;
         if (audio && !isNaN(time)) {
             audio.currentTime = Math.max(0, Math.min(time, audio.duration || 0));
+            // Reflect the new position now; a streamed lecture can take a moment to fire timeupdate.
+            setState(prev => ({ ...prev, currentTime: audio.currentTime }));
         }
     }, []);
 
@@ -328,6 +402,7 @@ export function AudioProvider({ children, onLectureComplete }: AudioProviderProp
             // Prevent seeking beyond duration or before 0
             newTime = Math.max(0, Math.min(newTime, audio.duration || 0));
             audio.currentTime = newTime;
+            setState(prev => ({ ...prev, currentTime: audio.currentTime }));
         }
     }, []);
 

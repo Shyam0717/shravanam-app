@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Filter, Library, Mic2, Search } from 'lucide-react';
 import { CollectionKey, FilterType, LibraryLecture, SpeakerKey } from '@/types/Lecture';
@@ -16,6 +16,16 @@ import {
   speakerDefinitions,
 } from '@/lib/library';
 
+// Long collections (one has 1,400+ lectures) are rendered in pages as you scroll.
+const LECTURES_PER_PAGE = 40;
+
+// Centre the selected chip in a horizontally scrolling row (e.g. after opening a deep link).
+function scrollSelectedChipIntoView(row: HTMLDivElement | null) {
+  const chip = row?.querySelector<HTMLElement>('[aria-pressed="true"]');
+  if (!row || !chip) return;
+  row.scrollTo({ left: chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' });
+}
+
 export default function LectureListPage() {
   const router = useRouter();
   const { data, update } = useUserStorage();
@@ -24,6 +34,10 @@ export default function LectureListPage() {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
+  const [visibleCount, setVisibleCount] = useState(LECTURES_PER_PAGE);
+  const speakerRowRef = useRef<HTMLDivElement>(null);
+  const collectionRowRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -119,6 +133,36 @@ export default function LectureListPage() {
     });
   }, [collectionLectures, data.bookmarkedLectures, data.listenedLectures, filterType, searchTerm, selectedSection]);
 
+  // Start from the top of the list whenever the filters change.
+  useEffect(() => {
+    setVisibleCount(LECTURES_PER_PAGE);
+  }, [selectedSpeaker, selectedCollection, selectedSection, searchTerm, filterType]);
+
+  const hasMoreLectures = visibleCount < filteredLectures.length;
+
+  // Render the next page before the reader reaches the end of the current one.
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!hasMoreLectures || !sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) setVisibleCount((count) => count + LECTURES_PER_PAGE);
+      },
+      { rootMargin: '1200px 0px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMoreLectures, visibleCount]);
+
+  useEffect(() => {
+    scrollSelectedChipIntoView(speakerRowRef.current);
+  }, [selectedSpeaker]);
+
+  useEffect(() => {
+    scrollSelectedChipIntoView(collectionRowRef.current);
+  }, [selectedCollection, selectedSpeaker]);
+
   const toggleListened = (id: number) => {
     update((prev) => {
       const listenedLectures = prev.listenedLectures.includes(id)
@@ -149,7 +193,7 @@ export default function LectureListPage() {
 
   return (
     <div className="space-y-6">
-      <section className="glass-card p-5 md:p-8">
+      <section className="glass-card hidden p-5 sm:block md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-sand-100 px-3 py-1 text-xs font-medium text-sand-700 dark:bg-sand-900/30 dark:text-sand-300">
@@ -171,7 +215,7 @@ export default function LectureListPage() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="space-y-4">
+        <aside className="hidden space-y-4 xl:block">
           <div className="glass-card p-5">
             <div className="mb-4 flex items-center gap-2">
               <Mic2 className="w-4 h-4 text-lotus-700 dark:text-sand-300" />
@@ -193,14 +237,46 @@ export default function LectureListPage() {
         </aside>
 
         <div className="space-y-5 min-w-0">
-          <div className="glass-card p-5">
+          <div className="glass-card p-4 sm:p-5">
             <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-2">
+              {/* Phones: compact title in place of the intro card */}
+              <div className="flex items-baseline justify-between gap-3 sm:hidden">
+                <h1 className="heading-2 text-2xl">Library</h1>
+                <span className="text-sm text-foreground-muted">
+                  {filteredLectures.length} {filteredLectures.length === 1 ? 'lecture' : 'lectures'}
+                </span>
+              </div>
+
+              {/* Speakers as a scrolling row; wide screens use the sidebar list instead */}
+              <div
+                ref={speakerRowRef}
+                className="no-scrollbar relative -mx-4 flex gap-2 overflow-x-auto px-4 sm:-mx-5 sm:px-5 xl:hidden"
+              >
+                {speakerDefinitions.map((speaker) => (
+                  <button
+                    key={speaker.slug}
+                    onClick={() => setSelectedSpeaker(speaker.slug)}
+                    aria-pressed={selectedSpeaker === speaker.slug}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${selectedSpeaker === speaker.slug
+                      ? 'bg-gradient-to-br from-sky-600 to-sage-600 text-white shadow-sm'
+                      : 'border border-neutral-200 bg-white/80 text-foreground-muted dark:border-neutral-700 dark:bg-neutral-800'
+                    }`}
+                  >
+                    {speaker.shortName}
+                  </button>
+                ))}
+              </div>
+
+              <div
+                ref={collectionRowRef}
+                className="no-scrollbar relative -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+              >
                 {availableCollections.map((collection) => (
                   <button
                     key={collection.key}
                     onClick={() => setSelectedCollection(collection.key)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${selectedCollection === collection.key
+                    aria-pressed={selectedCollection === collection.key}
+                    className={`shrink-0 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-colors ${selectedCollection === collection.key
                       ? 'bg-sage-600 text-white shadow-sm hover:bg-sage-700'
                       : 'bg-white/80 text-foreground-muted border border-neutral-200 hover:border-sage-200 hover:text-foreground dark:bg-neutral-800 dark:border-neutral-700'
                     }`}
@@ -210,22 +286,24 @@ export default function LectureListPage() {
                 ))}
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_180px_180px]">
-                <div className="relative">
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-[minmax(0,1fr)_180px_180px]">
+                <div className="relative col-span-2 xl:col-span-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="Search title, verse, or location"
-                    className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-9 pr-4 text-sm text-foreground dark:border-neutral-700 dark:bg-neutral-800"
+                    aria-label="Search lectures"
+                    className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-9 pr-4 text-base text-foreground dark:border-neutral-700 dark:bg-neutral-800 sm:text-sm"
                   />
                 </div>
 
                 <select
                   value={selectedSection || ''}
                   onChange={(event) => setSelectedSection(event.target.value || null)}
-                  className="rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-foreground dark:border-neutral-700 dark:bg-neutral-800"
+                  aria-label="Section"
+                  className="w-full min-w-0 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-base text-foreground dark:border-neutral-700 dark:bg-neutral-800 sm:text-sm"
                 >
                   <option value="">All Sections</option>
                   {sections.map((section) => (
@@ -235,12 +313,13 @@ export default function LectureListPage() {
                   ))}
                 </select>
 
-                <div className="relative">
+                <div className="relative min-w-0">
                   <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
                   <select
                     value={filterType}
                     onChange={(event) => setFilterType(event.target.value as FilterType)}
-                    className="w-full appearance-none rounded-xl border border-neutral-200 bg-white py-2.5 pl-9 pr-4 text-sm text-foreground dark:border-neutral-700 dark:bg-neutral-800"
+                    aria-label="Listening status"
+                    className="w-full appearance-none rounded-xl border border-neutral-200 bg-white py-2.5 pl-9 pr-4 text-base text-foreground dark:border-neutral-700 dark:bg-neutral-800 sm:text-sm"
                   >
                     <option value="all">All lectures</option>
                     <option value="listened">Listened</option>
@@ -253,8 +332,8 @@ export default function LectureListPage() {
           </div>
 
           {filteredLectures.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {filteredLectures.map((lecture) => (
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+              {filteredLectures.slice(0, visibleCount).map((lecture) => (
                 <LectureCard
                   key={lecture.id}
                   lecture={lecture}
@@ -266,6 +345,7 @@ export default function LectureListPage() {
                   onNotesSave={(content) => saveNotes(lecture.id, content)}
                 />
               ))}
+              {hasMoreLectures && <div ref={loadMoreRef} className="h-px md:col-span-2" aria-hidden="true" />}
             </div>
           ) : (
             <div className="glass-card p-10 text-center">

@@ -9,7 +9,7 @@ Future plans for Kirtanam Sadhana.
 - **Cloud Backup**: Encrypted backup of notes and streaks.
 
 ### 📱 Mobile Experience
-- **PWA Support**: Full Progressive Web App support (Install on Home Screen).
+- ~~**PWA Support**: Full Progressive Web App support (Install on Home Screen).~~ ✅ Done — installable, offline browsing, lock-screen controls.
 - **Offline Mode**: Ability to download lectures for offline listening.
 
 ### 🤝 Social & Community
